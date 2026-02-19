@@ -8,9 +8,11 @@ function cleanText(text) {
   
   return text
     .replace(/\0/g, '')
-    .replace(/[\x00-\x1F\x7F]/g, '')
-    .replace(/ +/g, ' ')
-    .replace(/\n{3,}/g, '\n\n')
+    .replace(/[\x00-\x08\x0B-\x0C\x0E-\x1F\x7F]/g, '')
+    .replace(/\r\n/g, '\n')
+    .replace(/\r/g, '\n')
+    .replace(/\n{4,}/g, '\n\n\n')
+    .replace(/[ \t]+/g, ' ')
     .trim()
 }
 

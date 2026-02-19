@@ -3,9 +3,9 @@ import Head from 'next/head'
 import Navbar from '../components/Navbar'
 import Hero from '../components/Hero'
 import ToolCard from '../components/ToolCard'
+import TailorSection from '../components/TailorSection'
 import ScoreBanner from '../components/ScoreBanner'
 import BreakdownSection from '../components/BreakdownSection'
-import SuggestionsSection from '../components/SuggestionsSection'
 import Footer from '../components/Footer'
 import ToastNotification from '../components/ToastNotification'
 
@@ -15,6 +15,7 @@ export default function Home({ theme, toggleTheme }) {
   const [toast, setToast] = useState(null)
   const [resetTrigger, setResetTrigger] = useState(0)
   const [apiError, setApiError] = useState(null)
+  const [currentResumeData, setCurrentResumeData] = useState(null)
   const resultsRef = useRef(null)
 
   useEffect(() => {
@@ -25,10 +26,12 @@ export default function Home({ theme, toggleTheme }) {
     }
   }, [analysisResult])
 
-  const handleAnalyze = async (resumeText, jobDescription) => {
+  const handleAnalyze = async (resumeText, jobDescription, fileName) => {
     setIsLoading(true)
     setAnalysisResult(null)
     setApiError(null)
+    
+    setCurrentResumeData({ resumeText, jobDescription, fileName })
 
     try {
       const response = await fetch('/api/analyze', {
@@ -56,17 +59,17 @@ export default function Home({ theme, toggleTheme }) {
     }
   }
 
+
+
   const handleReset = () => {
-    // Reset all state
     setAnalysisResult(null)
     setIsLoading(false)
     setToast(null)
     setApiError(null)
+    setCurrentResumeData(null)
     
-    // Trigger reset in ToolCard component
     setResetTrigger(prev => prev + 1)
     
-    // Scroll back to top smoothly
     window.scrollTo({ top: 0, behavior: 'smooth' })
   }
 
@@ -87,37 +90,31 @@ export default function Home({ theme, toggleTheme }) {
         <main>
           <Hero />
           
-          <div className="mt-8">
-            <ToolCard 
-              onAnalyze={handleAnalyze} 
-              isLoading={isLoading} 
-              resetTrigger={resetTrigger}
-              apiError={apiError}
-            />
-          </div>
+          <ToolCard 
+            onAnalyze={handleAnalyze} 
+            isLoading={isLoading} 
+            resetTrigger={resetTrigger}
+            apiError={apiError}
+          />
 
-          {/* Results Section */}
           {analysisResult && (
             <div ref={resultsRef} className="mt-12 max-w-[1100px] mx-auto px-4 space-y-8 animate-fadeUp">
-              {/* Score Banner */}
               <ScoreBanner 
                 score={analysisResult.overallScore}
                 summary={analysisResult.summary}
               />
 
-              {/* Breakdown */}
               <BreakdownSection
                 keywordMatch={analysisResult.keywordMatch}
                 contextualMatch={analysisResult.contextualMatch}
                 textSimilarity={analysisResult.textSimilarity}
               />
 
-              {/* Suggestions */}
-              {analysisResult.suggestions && analysisResult.suggestions.length > 0 && (
-                <SuggestionsSection suggestions={analysisResult.suggestions} />
-              )}
+              <TailorSection 
+                theme={theme}
+                resumeData={currentResumeData}
+              />
 
-              {/* Analyze Again */}
               <div className="text-center mt-12 mb-16">
                 <p className="text-[#8888a0] dark:text-neutral-500 text-sm mb-4">
                   Not satisfied? Try with a different resume or job description.

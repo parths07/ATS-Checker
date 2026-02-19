@@ -64,7 +64,7 @@ export default function ToolCard({ onAnalyze, isLoading, resetTrigger, apiError 
 
   const handleAnalyze = () => {
     if (resumeText && jobDescription) {
-      onAnalyze(resumeText, jobDescription)
+      onAnalyze(resumeText, jobDescription, resumeFile?.name || '')
     }
   }
 
